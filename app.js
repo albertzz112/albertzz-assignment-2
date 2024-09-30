@@ -55,10 +55,16 @@ document.getElementById('init-method').addEventListener('change', function () {
   }
 });
 
+// Get number of centroids from the dropdown
+function getCentroidCount() {
+  return parseInt(document.getElementById('centroid-count').value, 10);
+}
+
 // Random initialization
 function initializeRandom() {
+  const count = getCentroidCount();
   centroids = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < count; i++) {
     centroids.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height
@@ -69,6 +75,7 @@ function initializeRandom() {
 
 // Farthest First initialization
 function initializeFarthestFirst() {
+  const count = getCentroidCount();
   centroids = [];
   
   // Choose the first random centroid
@@ -77,7 +84,7 @@ function initializeFarthestFirst() {
     y: Math.random() * canvas.height
   });
 
-  for (let i = 1; i < 3; i++) {
+  for (let i = 1; i < count; i++) {
     let maxDistance = 0;
     let nextCentroid = null;
 
@@ -108,10 +115,11 @@ function initializeFarthestFirst() {
 
 // KMeans++ initialization
 function initializeKMeansPP() {
+  const count = getCentroidCount();
   centroids = [];
   centroids.push(points[Math.floor(Math.random() * points.length)]); // Choose first random point
 
-  for (let i = 1; i < 3; i++) {
+  for (let i = 1; i < count; i++) {
     let maxDistance = 0;
     let nextCentroid = points[0];
 
@@ -133,16 +141,17 @@ function initializeKMeansPP() {
 
 // Manual initialization
 function enableManualSelection() {
+  const count = getCentroidCount();
   centroids = [];
   canvas.addEventListener('click', function selectCentroids(e) {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    if (centroids.length < 3) {
+    if (centroids.length < count) {
       centroids.push({ x, y });
       drawCentroids();
     }
-    if (centroids.length === 3) {
+    if (centroids.length === count) {
       canvas.removeEventListener('click', selectCentroids);
     }
   });
@@ -165,7 +174,7 @@ function drawCentroids() {
 document.getElementById('step-algorithm').addEventListener('click', stepThroughAlgorithm);
 
 function stepThroughAlgorithm() {
-  if (centroids.length < 3) {
+  if (centroids.length < getCentroidCount()) {
     alert('Please select an initialization method.');
     return;
   }
@@ -180,7 +189,8 @@ function stepThroughAlgorithm() {
 }
 
 function assignClusters() {
-  clusters = [[], [], []];
+  const count = getCentroidCount();
+  clusters = Array.from({ length: count }, () => []); // Initialize clusters based on centroid count
   steps = [];
 
   // Assign each point to the nearest centroid
@@ -203,22 +213,23 @@ function assignClusters() {
 }
 
 function updateCentroids() {
-  let newCentroids = [];
+  const count = getCentroidCount();
+  let newCentroids = Array.from({ length: count }, () => ({ x: 0, y: 0, count: 0 }));
 
   // Update the centroids to be the mean of their respective clusters
-  clusters.forEach(cluster => {
-    let sumX = 0, sumY = 0;
+  clusters.forEach((cluster, clusterIndex) => {
     cluster.forEach(point => {
-      sumX += point.x;
-      sumY += point.y;
-    });
-    newCentroids.push({
-      x: sumX / cluster.length,
-      y: sumY / cluster.length
+      newCentroids[clusterIndex].x += point.x;
+      newCentroids[clusterIndex].y += point.y;
+      newCentroids[clusterIndex].count++;
     });
   });
 
-  centroids = newCentroids;
+  centroids = newCentroids.map(centroid => ({
+    x: centroid.count ? centroid.x / centroid.count : 0,
+    y: centroid.count ? centroid.y / centroid.count : 0,
+  }));
+
   steps.push({ clusters: JSON.parse(JSON.stringify(clusters)), centroids: JSON.parse(JSON.stringify(centroids)) });
 }
 
@@ -228,11 +239,11 @@ function drawStep(step) {
 
   // Draw points color-coded by cluster
   step.clusters.forEach((cluster, i) => {
-    const colors = ['blue', 'green', 'purple'];
+    const colors = ['blue', 'green', 'purple', 'orange', 'pink', 'cyan']; // Extend colors if needed
     cluster.forEach(point => {
       ctx.beginPath();
       ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
-      ctx.fillStyle = colors[i];
+      ctx.fillStyle = colors[i % colors.length]; // Cycle through colors
       ctx.fill();
       ctx.closePath();
     });
@@ -259,7 +270,7 @@ document.getElementById('reset').addEventListener('click', function () {
 
 // Go to convergence button
 document.getElementById('converge').addEventListener('click', function () {
-  if (centroids.length < 3) {
+  if (centroids.length < getCentroidCount()) {
     alert('Please select an initialization method.');
     return;
   }
