@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KMeans Clustering Visualization</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>KMeans Clustering Visualization</h1>
+  
+  <!-- Control Panel -->
+  <div id="control-panel">
+    <select id="init-method">
+      <option value="random">Random Initialization</option>
+      <option value="farthest">Farthest First Initialization</option>
+      <option value="kmeans++">KMeans++ Initialization</option>
+      <option value="manual">Manual Initialization</option>
+    </select>
+    <button id="generate-data">Generate New Dataset</button>
+    <button id="step-algorithm">Step Through Algorithm</button>
+    <button id="converge">Go to Convergence</button>
+    <button id="reset">Reset</button>
+  </div>
+
+  <!-- Visualization Canvas -->
+  <canvas id="kmeans-canvas" width="600" height="400"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>

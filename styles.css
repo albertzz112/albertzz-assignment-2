@@ -1,0 +1,13 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  
+  #control-panel {
+    margin-bottom: 20px;
+  }
+  
+  canvas {
+    border: 1px solid black;
+  }
+  
