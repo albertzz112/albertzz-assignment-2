@@ -75,44 +75,43 @@ function initializeRandom() {
 
 // Farthest First initialization
 function initializeFarthestFirst() {
-  const count = getCentroidCount();
-  centroids = [];
+    const count = getCentroidCount();
+    centroids = [];
+    
+    // Choose the first random centroid
+    centroids.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height
+    });
   
-  // Choose the first random centroid
-  centroids.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height
-  });
-
-  for (let i = 1; i < count; i++) {
-    let maxDistance = 0;
-    let nextCentroid = null;
-
-    points.forEach(point => {
-      let minDistance = Infinity;
-
-      centroids.forEach(centroid => {
-        const distance = Math.hypot(point.x - centroid.x, point.y - centroid.y);
-        if (distance < minDistance) {
-          minDistance = distance;
+    while (centroids.length < count) {
+      let maxDistance = -1;
+      let nextCentroid = null;
+  
+      // For each point, find the closest centroid
+      points.forEach(point => {
+        // Calculate the distance to the nearest centroid
+        let minDistance = Math.min(...centroids.map(centroid => {
+          return Math.hypot(point.x - centroid.x, point.y - centroid.y);
+        }));
+  
+        // If the minimum distance to any centroid is greater than the maxDistance found so far,
+        // we have a candidate for the next centroid
+        if (minDistance > maxDistance) {
+          maxDistance = minDistance;
+          nextCentroid = point;
         }
       });
-
-      // Choose the point with the maximum of the minimum distances
-      if (minDistance > maxDistance) {
-        maxDistance = minDistance;
-        nextCentroid = point;
+  
+      // Add the farthest point as the next centroid only if a nextCentroid is found
+      if (nextCentroid) {
+        centroids.push(nextCentroid);
       }
-    });
-
-    if (nextCentroid) {
-      centroids.push(nextCentroid);
     }
+  
+    drawCentroids();
   }
-
-  drawCentroids();
-}
-
+  
 // KMeans++ initialization
 function initializeKMeansPP() {
   const count = getCentroidCount();
@@ -124,11 +123,9 @@ function initializeKMeansPP() {
     let nextCentroid = points[0];
 
     points.forEach(point => {
-      let minDistance = Infinity;
-      centroids.forEach(centroid => {
-        const distance = Math.hypot(point.x - centroid.x, point.y - centroid.y);
-        if (distance < minDistance) minDistance = distance;
-      });
+      let minDistance = Math.min(...centroids.map(centroid => {
+        return Math.hypot(point.x - centroid.x, point.y - centroid.y);
+      }));
       if (minDistance > maxDistance) {
         maxDistance = minDistance;
         nextCentroid = point;
