@@ -6,31 +6,22 @@ let clusters = [];
 let steps = [];
 
 // Generate random dataset
-document.getElementById('generate-data').addEventListener('click', generateRandomDataset);
+document.getElementById('generate-data').addEventListener('click', generateDataset);
 
-function generateRandomDataset() {
+function generateDataset() {
   points = [];
   centroids = [];
   steps = [];
   clusters = [];
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Generate random points in clusters
-  for (let i = 0; i < 30; i++) {
+  // Generate random points
+  for (let i = 0; i < 100; i++) {
     points.push({
-      x: Math.random() * (canvas.width / 3), // Cluster 1
-      y: Math.random() * (canvas.height / 3)
-    });
-    points.push({
-      x: Math.random() * (canvas.width / 3) + (canvas.width / 3) * 2, // Cluster 2
-      y: Math.random() * (canvas.height / 3)
-    });
-    points.push({
-      x: Math.random() * (canvas.width / 3) + (canvas.width / 3), // Cluster 3
-      y: Math.random() * (canvas.height / 3) + (canvas.height / 3)
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height
     });
   }
-
   drawPoints();
 }
 
@@ -64,17 +55,14 @@ document.getElementById('init-method').addEventListener('change', function () {
   }
 });
 
-// Random initialization (select from points)
+// Random initialization
 function initializeRandom() {
   centroids = [];
-  const selectedIndices = [];
-
-  while (centroids.length < 3) {
-    const index = Math.floor(Math.random() * points.length);
-    if (!selectedIndices.includes(index)) {
-      selectedIndices.push(index);
-      centroids.push(points[index]);
-    }
+  for (let i = 0; i < 3; i++) {
+    centroids.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height
+    });
   }
   drawCentroids();
 }
@@ -82,11 +70,16 @@ function initializeRandom() {
 // Farthest First initialization
 function initializeFarthestFirst() {
   centroids = [];
-  centroids.push(points[Math.floor(Math.random() * points.length)]); // Choose first random point
+  
+  // Choose the first random centroid
+  centroids.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height
+  });
 
   for (let i = 1; i < 3; i++) {
     let maxDistance = 0;
-    let farthestPoint = points[0];
+    let nextCentroid = null;
 
     points.forEach(point => {
       let minDistance = Infinity;
@@ -101,17 +94,19 @@ function initializeFarthestFirst() {
       // Choose the point with the maximum of the minimum distances
       if (minDistance > maxDistance) {
         maxDistance = minDistance;
-        farthestPoint = point;
+        nextCentroid = point;
       }
     });
 
-    centroids.push(farthestPoint);
+    if (nextCentroid) {
+      centroids.push(nextCentroid);
+    }
   }
 
   drawCentroids();
 }
 
-// KMeans++ initialization (select from points)
+// KMeans++ initialization
 function initializeKMeansPP() {
   centroids = [];
   centroids.push(points[Math.floor(Math.random() * points.length)]); // Choose first random point
@@ -136,30 +131,17 @@ function initializeKMeansPP() {
   drawCentroids();
 }
 
-// Manual initialization (select centroids from the plot)
+// Manual initialization
 function enableManualSelection() {
   centroids = [];
   canvas.addEventListener('click', function selectCentroids(e) {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
-    // Find the closest point to the click
-    let closestPoint = null;
-    let minDistance = Infinity;
-    points.forEach(point => {
-      const distance = Math.hypot(point.x - x, point.y - y);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestPoint = point;
-      }
-    });
-
-    if (closestPoint && centroids.length < 3) {
-      centroids.push(closestPoint);
+    if (centroids.length < 3) {
+      centroids.push({ x, y });
       drawCentroids();
     }
-
     if (centroids.length === 3) {
       canvas.removeEventListener('click', selectCentroids);
     }
@@ -197,7 +179,6 @@ function stepThroughAlgorithm() {
   }
 }
 
-// Assign points to clusters
 function assignClusters() {
   clusters = [[], [], []];
   steps = [];
@@ -221,7 +202,6 @@ function assignClusters() {
   updateCentroids();
 }
 
-// Update the centroids based on the current clusters
 function updateCentroids() {
   let newCentroids = [];
 
@@ -242,7 +222,7 @@ function updateCentroids() {
   steps.push({ clusters: JSON.parse(JSON.stringify(clusters)), centroids: JSON.parse(JSON.stringify(centroids)) });
 }
 
-// Draw the current step
+// Function to draw the current step of the clustering process
 function drawStep(step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
