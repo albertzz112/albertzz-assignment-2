@@ -17,6 +17,17 @@
       <option value="kmeans++">KMeans++ Initialization</option>
       <option value="manual">Manual Initialization</option>
     </select>
+    
+    <!-- New dropdown for selecting the number of centroids -->
+    <label for="centroid-count">Number of Centroids:</label>
+    <select id="centroid-count">
+      <option value="2">2</option>
+      <option value="3" selected>3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+    </select>
+    
     <button id="generate-data">Generate New Dataset</button>
     <button id="step-algorithm">Step Through Algorithm</button>
     <button id="converge">Go to Convergence</button>
