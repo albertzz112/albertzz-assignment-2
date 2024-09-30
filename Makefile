@@ -1,7 +1,4 @@
-# Makefile for KMeans Clustering Visualization Web Application
-
 # Variables
-SERVER = http-server
 PORT = 3000
 
 # Default target
@@ -9,23 +6,16 @@ all: install run
 
 # Install dependencies
 install:
-	@echo "Installing dependencies..."
-	@npm install http-server
+	@echo "No dependencies to install for a static site."
 
-# Run the web application
+# Run the web application locally
 run:
-	@echo "Running the web application..."
-	@http-server . -p $(PORT)
-
-# Clean up node_modules (optional)
-clean:
-	@echo "Cleaning up..."
-	@rm -rf node_modules
+	@echo "Running the web application on http://localhost:$(PORT)..."
+	@python3 -m http.server $(PORT)
 
 # Help message
 help:
 	@echo "Makefile commands:"
-	@echo "  make install      Install required dependencies."
-	@echo "  make run          Run the web application on localhost:3000."
-	@echo "  make clean        Clean up node_modules."
+	@echo "  make install      Install required dependencies (none for this project)."
+	@echo "  make run          Run the web application on localhost:$(PORT)."
 	@echo "  make help         Display this help message."
